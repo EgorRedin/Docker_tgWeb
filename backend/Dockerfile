@@ -7,7 +7,6 @@ COPY requirements.txt .
 COPY  database_init.py models.py config.py queries.py .env ./
 COPY main.py .
 
-RUN apt-get update && apt-get install -y redis-server
 RUN pip install --no-cache-dir -r requirements.txt
 
 CMD redis-server --daemonize yes && python db_create.py && python main.py

@@ -16,3 +16,14 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"  # Проброс порта для бэкенда
+  
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
