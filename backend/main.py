@@ -57,7 +57,9 @@ async def handle_single(sid, user_id):
 
 @sio.on("disconnect")
 async def disconnect(sid):
+    print("Я в дисконект")
     if sid in connections.keys():
+        print("Cид найден")
         curr_balance = int(await r.get(connections[sid]))
         user = await AsyncORM.get_user(connections[sid])
         if user.balance < curr_balance:
