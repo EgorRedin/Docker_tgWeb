@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from redis import asyncio as aioredis
 
 
-r = aioredis.Redis(host='redis', port=6379, decode_responses=True)
+r = aioredis.Redis(host='redis', port=80, decode_responses=True)
 app = FastAPI()
 sio = socketio.AsyncServer(cors_allowed_origins='*', async_mode='asgi')
 socket_app = socketio.ASGIApp(sio)
