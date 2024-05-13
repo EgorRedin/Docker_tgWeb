@@ -20,12 +20,14 @@ async def connection(sid, data):
     connections[sid] = user_id
     user = await AsyncORM.get_user(user_id)
     if user:
-        await r.set(user_id, user.balance)
+        result = await r.set(user_id, user.balance, get=True)
+        print(f"Результат вставки: {result}")
         ser_user = user.__dict__
         del ser_user["_sa_instance_state"]
         await sio.emit("get_user", ser_user)
     else:
-        await r.set(user_id, 0)
+        result = await r.set(user_id, 0, get=True)
+        print(f"Результат вставки: {result}")
         new_user = {
             "id": user_id,
             "balance": 0,
@@ -49,6 +51,7 @@ async def handle_clicks(sid, data: dict):
 @sio.on("single_click")
 async def handle_single(sid, user_id):
     value = await r.get(user_id)
+    print(f"Редис вернул {value}")
     await r.set(user_id, int(value) + 1)
 
 
