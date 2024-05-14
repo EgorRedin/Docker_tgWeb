@@ -14,7 +14,7 @@ class AsyncORM:
     @staticmethod
     async def insert_user(tg_id: int):
         async with session_factory() as session:
-            user = User(id=tg_id, balance=0, auto_miner=0)
+            user = User(id=tg_id, balance=0, auto_miner=0, click_size=1)
             session.add(user)
             await session.commit()
 
@@ -34,3 +34,13 @@ class AsyncORM:
             result = res.scalars().first()
             result.balance += clicks
             await session.commit()
+
+    @staticmethod
+    async def update_click_size(tg_id: int):
+        async with session_factory() as session:
+            query = select(User).where(User.id == tg_id)
+            res = await session.execute(query)
+            result = res.scalars().first()
+            result.click_size += 5
+            await session.commit()
+        return result
