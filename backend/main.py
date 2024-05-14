@@ -70,7 +70,7 @@ async def handle_size(sid, user_id):
     updated_user = await AsyncORM.update_click_size(user_id)
     ser_user = updated_user.__dict__
     del ser_user["_sa_instance_state"]
-    await sio.emit("init_user", ser_user, room=sid)
+    await sio.emit("get_user", ser_user, room=sid)
 
 
 @sio.on("disconnect")
