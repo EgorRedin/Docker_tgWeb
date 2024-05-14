@@ -53,7 +53,7 @@ async def handle_single(sid, data: dict):
     user_id = str(data.get("userID"))
     click_size = int(data.get("clickSize"))
     values = await r.hgetall(user_id)
-    values = {key: int(value) for key, value in values}
+    values = {key: int(value) for key, value in values.items()}
     print(f"Из редис {values}")
     if click_size != values["click_size"]:
         user = await AsyncORM.get_user(int(user_id))
