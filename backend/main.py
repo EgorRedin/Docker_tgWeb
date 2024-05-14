@@ -14,6 +14,11 @@ app.mount("/", socket_app)
 connections = {}
 
 
+@sio.on("connect")
+async def log(sid):
+    print(f"Конект: {sid}")
+
+
 @sio.on("init_user")
 async def connection(sid, data):
     user_id = data.get("userID")
@@ -44,6 +49,7 @@ async def handle_clicks(sid, data: dict):
     user = await AsyncORM.get_user(user_id)
     ser_user = user.__dict__
     del ser_user["_sa_instance_state"]
+    print(f"Отправляю {sid}")
     await sio.emit("get_user", ser_user, to=sid)
 
 
@@ -65,11 +71,11 @@ async def handle_single(sid, data: dict):
 
 @sio.on("update_click")
 async def handle_size(sid, user_id):
-    print("В апдейт клике")
     await AsyncORM.update_click_size(user_id)
     updated_user = await AsyncORM.get_user(user_id)
     ser_user = updated_user.__dict__
     del ser_user["_sa_instance_state"]
+    print(f"ОТправляю {sid}")
     await sio.emit("get_user", ser_user, to=sid)
 
 
