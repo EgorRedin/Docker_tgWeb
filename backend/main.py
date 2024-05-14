@@ -49,12 +49,10 @@ async def handle_clicks(sid, data: dict):
 
 @sio.on("single_click")
 async def handle_single(sid, data: dict):
-    print(f"Инфа одиночный {data}")
     user_id = str(data.get("userID"))
     click_size = int(data.get("clickSize"))
     values = await r.hgetall(user_id)
     values = {key: int(value) for key, value in values.items()}
-    print(f"Из редис {values}")
     if click_size != values["click_size"]:
         user = await AsyncORM.get_user(int(user_id))
         values["click_size"] = user.click_size
@@ -70,6 +68,7 @@ async def handle_size(sid, user_id):
     updated_user = await AsyncORM.update_click_size(user_id)
     ser_user = updated_user.__dict__
     del ser_user["_sa_instance_state"]
+    print(f"Обновленный юзер {ser_user}")
     await sio.emit("get_user", ser_user, room=sid)
 
 

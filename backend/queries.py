@@ -42,5 +42,6 @@ class AsyncORM:
             res = await session.execute(query)
             result = res.scalars().first()
             result.click_size += 5
+            updated_user = result
             await session.commit()
-        return result
+        return updated_user
