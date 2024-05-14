@@ -49,9 +49,11 @@ async def handle_clicks(sid, data: dict):
 
 @sio.on("single_click")
 async def handle_single(sid, data: dict):
+    print(f"Инфа одиночный {data}")
     user_id = str(data.get("userID"))
     click_size = int(data.get("clickSize"))
     value = await r.hgetall(user_id)
+    print(f"Из редис {value}")
     if click_size != value["click_size"]:
         user = await AsyncORM.get_user(int(user_id))
         value["click_size"] = user.click_size
