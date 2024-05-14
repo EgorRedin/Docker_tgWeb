@@ -16,6 +16,7 @@ connections = {}
 
 @sio.on("init_user")
 async def connection(sid, data):
+    print(f"Инфа о пользовател {data}")
     user_id = data.get("userID")
     connections[sid] = user_id
     user = await AsyncORM.get_user(user_id)
