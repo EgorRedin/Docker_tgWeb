@@ -15,7 +15,7 @@ connections = {}
 
 
 @sio.on("connect")
-async def log(sid):
+async def log(sid, events):
     print(f"Конект: {sid}")
 
 
