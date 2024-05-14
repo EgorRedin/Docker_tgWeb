@@ -52,16 +52,17 @@ async def handle_single(sid, data: dict):
     print(f"Инфа одиночный {data}")
     user_id = str(data.get("userID"))
     click_size = int(data.get("clickSize"))
-    value = await r.hgetall(user_id)
-    print(f"Из редис {value}")
-    if click_size != value["click_size"]:
+    values = await r.hgetall(user_id)
+    values = {key: int(value) for key, value in values}
+    print(f"Из редис {values}")
+    if click_size != values["click_size"]:
         user = await AsyncORM.get_user(int(user_id))
-        value["click_size"] = user.click_size
-        value["balance"] += value["click_size"]
-        await r.hset(user_id, mapping=value)
+        values["click_size"] = user.click_size
+        values["balance"] += values["click_size"]
+        await r.hset(user_id, mapping=values)
     else:
-        value["balance"] += value["click_size"]
-        await r.hset(user_id, mapping=value)
+        values["balance"] += values["click_size"]
+        await r.hset(user_id, mapping=values)
 
 
 @sio.on("update_click")
@@ -79,7 +80,7 @@ async def disconnect(sid):
         user = await AsyncORM.get_user(connections[sid])
         if user.balance < curr_balance:
             await AsyncORM.update_balance(connections[sid], curr_balance - user.balance)
-        await r.delete(connections[sid])
+        await r.delete(str(connections[sid]))
 
 
 if __name__ == "__main__":
