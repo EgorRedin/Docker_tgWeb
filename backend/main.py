@@ -20,21 +20,20 @@ async def connection(sid, data):
     connections[sid] = user_id
     user = await AsyncORM.get_user(user_id)
     if user:
-        result = await r.set(user_id, user.balance, get=True)
-        print(f"Результат вставки: {result}")
+        await r.set(user_id, user.balance)
         ser_user = user.__dict__
         del ser_user["_sa_instance_state"]
-        await sio.emit("get_user", ser_user)
+        await sio.emit("get_user", ser_user, room=sid)
     else:
-        result = await r.set(user_id, 0, get=True)
-        print(f"Результат вставки: {result}")
+        await r.set(user_id, 0)
         new_user = {
             "id": user_id,
             "balance": 0,
-            "auto_miner": 0
+            "auto_miner": 0,
+            "click_size": 1
         }
         await AsyncORM.insert_user(user_id)
-        await sio.emit("get_user", new_user)
+        await sio.emit("get_user", new_user, room=sid)
 
 
 @sio.on("click")
@@ -45,21 +44,20 @@ async def handle_clicks(sid, data: dict):
     user = await AsyncORM.get_user(user_id)
     ser_user = user.__dict__
     del ser_user["_sa_instance_state"]
-    await sio.emit("get_user", ser_user)
+    await sio.emit("get_user", ser_user, room=sid)
 
 
 @sio.on("single_click")
-async def handle_single(sid, user_id):
+async def handle_single(sid, data: dict):
+    user_id = data.get("userID")
+    click_size = int(data.get("clickSize"))
     value = await r.get(user_id)
-    print(f"Редис вернул {value}")
-    await r.set(user_id, int(value) + 1)
+    await r.set(user_id, int(value) + int(click_size))
 
 
 @sio.on("disconnect")
 async def disconnect(sid):
-    print("Я в дисконект")
     if sid in connections.keys():
-        print("Cид найден")
         curr_balance = int(await r.get(connections[sid]))
         user = await AsyncORM.get_user(connections[sid])
         if user.balance < curr_balance:
