@@ -92,4 +92,4 @@ async def disconnect(sid):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=80,  log_level="critical")
+    uvicorn.run(app, host="0.0.0.0", port=80,  log_level="debug")
