@@ -66,6 +66,7 @@ async def handle_single(sid, data: dict):
 @sio.on("update_click")
 async def handle_size(sid, user_id):
     updated_user = await AsyncORM.update_click_size(user_id)
+    print(f"Юзер из БД {updated_user.__dict__}, {updated_user}")
     ser_user = updated_user.__dict__
     del ser_user["_sa_instance_state"]
     print(f"Обновленный юзер {ser_user}")
