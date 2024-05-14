@@ -14,11 +14,6 @@ app.mount("/", socket_app)
 connections = {}
 
 
-@sio.on("connect")
-async def log(sid, events):
-    print(f"Конект: {sid}")
-
-
 @sio.on("init_user")
 async def connection(sid, data):
     user_id = data.get("userID")
@@ -49,13 +44,11 @@ async def handle_clicks(sid, data: dict):
     user = await AsyncORM.get_user(user_id)
     ser_user = user.__dict__
     del ser_user["_sa_instance_state"]
-    print(f"Отправляю {sid}")
     await sio.emit("get_user", ser_user, to=sid)
 
 
 @sio.on("single_click")
 async def handle_single(sid, data: dict):
-    print(f"Одиночный клик {sid}")
     user_id = str(data.get("userID"))
     click_size = int(data.get("clickSize"))
     values = await r.hgetall(user_id)
@@ -76,13 +69,11 @@ async def handle_size(sid, user_id):
     updated_user = await AsyncORM.get_user(user_id)
     ser_user = updated_user.__dict__
     del ser_user["_sa_instance_state"]
-    print(f"Отправляю {sid}")
     await sio.emit("get_user", ser_user, to=sid)
 
 
 @sio.on("disconnect")
 async def disconnect(sid):
-    print(f"Дисконект {sid}")
     if sid in connections.keys():
         curr_balance = int((await r.hgetall(str(connections[sid])))["balance"])
         user = await AsyncORM.get_user(connections[sid])
