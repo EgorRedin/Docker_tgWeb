@@ -76,7 +76,7 @@ async def handle_size(sid, user_id):
 @sio.on("disconnect")
 async def disconnect(sid):
     if sid in connections.keys():
-        curr_balance = (await r.hgetall(str(connections[sid])))["balance"]
+        curr_balance = int((await r.hgetall(str(connections[sid])))["balance"])
         user = await AsyncORM.get_user(connections[sid])
         if user.balance < curr_balance:
             await AsyncORM.update_balance(connections[sid], curr_balance - user.balance)
