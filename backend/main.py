@@ -55,6 +55,7 @@ async def handle_clicks(sid, data: dict):
 
 @sio.on("single_click")
 async def handle_single(sid, data: dict):
+    print(f"Одиночный клик {sid}")
     user_id = str(data.get("userID"))
     click_size = int(data.get("clickSize"))
     values = await r.hgetall(user_id)
@@ -81,6 +82,7 @@ async def handle_size(sid, user_id):
 
 @sio.on("disconnect")
 async def disconnect(sid):
+    print(f"Дисконект {sid}")
     if sid in connections.keys():
         curr_balance = int((await r.hgetall(str(connections[sid])))["balance"])
         user = await AsyncORM.get_user(connections[sid])
@@ -90,4 +92,4 @@ async def disconnect(sid):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=80)
+    uvicorn.run(app, host="0.0.0.0", port=80,  log_level="critical")
