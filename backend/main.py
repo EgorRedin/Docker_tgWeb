@@ -75,7 +75,7 @@ async def handle_size(sid, user_id):
     updated_user = await AsyncORM.get_user(user_id)
     ser_user = updated_user.__dict__
     del ser_user["_sa_instance_state"]
-    print(f"ОТправляю {sid}")
+    print(f"Отправляю {sid}")
     await sio.emit("get_user", ser_user, to=sid)
 
 
