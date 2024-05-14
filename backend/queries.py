@@ -41,7 +41,8 @@ class AsyncORM:
             query = select(User).where(User.id == tg_id)
             res = await session.execute(query)
             result = res.scalars().first()
-            user = result
             result.click_size += 5
+            user = User(id=result.id, click_size=result.click_size, balance=result.balance, auto_miner=result.auto_miner)
             await session.commit()
             return user
+        
