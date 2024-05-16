@@ -81,7 +81,7 @@ async def handle_size(sid, user_id):
     del ser_user["_sa_instance_state"]
     await sio.emit("get_user", ser_user, to=sid)
 
-
+'''
 @sio.on("auto_miner")
 async def handle_miner(sid, user_id):
     await AsyncORM.update_auto_miner(user_id, True)
@@ -97,6 +97,7 @@ async def stop_scheduler(user_id, sid):
     await AsyncORM.update_auto_miner(user_id, False)
     scheduler.remove_job(f"auto_miner_{user_id}")
     await sio.emit("stop_interval", to=sid)
+'''
 
 
 @sio.on("disconnect")
