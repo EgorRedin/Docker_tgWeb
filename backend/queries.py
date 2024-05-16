@@ -47,3 +47,12 @@ class AsyncORM:
             result.click_size += 5
             result.balance -= 5
             await session.commit()
+
+    @staticmethod
+    async def update_auto_miner(tg_id: int, value):
+        async with session_factory() as session:
+            query = select(User).where(User.id == tg_id)
+            res = session.execute(query)
+            result = res.scalars().first()
+            result.auto_miner = value
+            await session.commit()
