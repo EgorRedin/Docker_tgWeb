@@ -52,7 +52,7 @@ class AsyncORM:
     async def update_auto_miner(tg_id: int, value):
         async with session_factory() as session:
             query = select(User).where(User.id == tg_id)
-            res = session.execute(query)
+            res = await session.execute(query)
             result = res.scalars().first()
             result.auto_miner = value
             await session.commit()
