@@ -55,8 +55,8 @@ async def handle_clicks(sid, data: dict):
 @sio.on("single_click")
 async def handle_single(sid, data: dict):
     user_id = str(data.get("userID"))
-    click_size = int(data.get("clickSize"))
     auto_miner = data.get("autoMiner")
+    click_size = int(data.get("clickSize"))
     values = await r.hgetall(user_id)
     values = {key: int(value) for key, value in values.items()}
     if auto_miner:
