@@ -1,10 +1,9 @@
+from datetime import datetime, timezone
 from queries import AsyncORM
 import socketio
 import uvicorn
 from fastapi import FastAPI
 from redis import asyncio as aioredis
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.interval import IntervalTrigger
 
 
 r = aioredis.Redis(host='redis', port=6379, decode_responses=True)
@@ -12,8 +11,6 @@ app = FastAPI()
 sio = socketio.AsyncServer(cors_allowed_origins='*', async_mode='asgi')
 socket_app = socketio.ASGIApp(sio)
 app.mount("/", socket_app)
-scheduler = AsyncIOScheduler()
-scheduler.start()
 connections = {}
 
 
@@ -25,7 +22,15 @@ async def connection(sid, data):
     if user:
         await r.hset(str(user_id), mapping={"balance": user.balance, "click_size": user.click_size})
         ser_user = user.__dict__
+        if ser_user["auto_miner"] >= 0:
+            time_gap = int((datetime.now(timezone.utc) - ser_user["last_enter"]).total_seconds())
+            coins_left = ser_user["auto_miner"] - time_gap if ser_user["auto_miner"] - time_gap > 0 else 0
+            if time_gap > 60:
+                await AsyncORM.update_auto_miner(user_id, coins_left)
+                await AsyncORM.update_balance(user_id, ser_user["auto_miner"] - coins_left)
+                ser_user["balance"] += time_gap
         del ser_user["_sa_instance_state"]
+        del ser_user["last_enter"]
         await sio.emit("get_user", ser_user, to=sid)
     else:
         await r.hset(str(user_id), mapping={"balance": 0, "click_size": 1})
@@ -33,7 +38,7 @@ async def connection(sid, data):
             "id": user_id,
             "balance": 0,
             "auto_miner": 0,
-            "click_size": 1
+            "click_size": 1,
         }
         await AsyncORM.insert_user(user_id)
         await sio.emit("get_user", new_user, to=sid)
@@ -81,23 +86,13 @@ async def handle_size(sid, user_id):
     del ser_user["_sa_instance_state"]
     await sio.emit("get_user", ser_user, to=sid)
 
-'''
-@sio.on("auto_miner")
-async def handle_miner(sid, user_id):
-    await AsyncORM.update_auto_miner(user_id, True)
-    scheduler.add_job(stop_scheduler,
-                      trigger=IntervalTrigger(seconds=10),
-                      args=[user_id, sid],
-                      id=f"auto_miner_{user_id}",
-                      replace_existing=True,
-                      max_instances=1)
 
-
-async def stop_scheduler(user_id, sid):
-    await AsyncORM.update_auto_miner(user_id, False)
-    scheduler.remove_job(f"auto_miner_{user_id}")
-    await sio.emit("stop_interval", to=sid)
-'''
+@sio.on("update_auto_miner")
+async def handel_auto_miner(sid, user_id):
+    user = await AsyncORM.get_user(user_id)
+    if user.auto_miner > 0:
+        return
+    await AsyncORM.update_auto_miner(user_id, 360)
 
 
 @sio.on("disconnect")
@@ -105,6 +100,7 @@ async def disconnect(sid):
     if sid in connections.keys():
         curr_balance = int((await r.hgetall(str(connections[sid])))["balance"])
         user = await AsyncORM.get_user(connections[sid])
+        await AsyncORM.update_last_enter(connections[sid])
         if user.balance < curr_balance:
             await AsyncORM.update_balance(connections[sid], curr_balance - user.balance)
         await r.delete(str(connections[sid]))
