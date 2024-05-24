@@ -4,7 +4,7 @@ import socketio
 import uvicorn
 from fastapi import FastAPI
 from redis import asyncio as aioredis
-
+import logging
 
 r = aioredis.Redis(host='redis', port=6379, decode_responses=True)
 app = FastAPI()
@@ -23,7 +23,7 @@ async def connection(sid, data):
         await r.hset(str(user_id), mapping={"balance": user.balance, "click_size": user.click_size})
         ser_user = user.__dict__
         if ser_user["auto_miner"] >= 0:
-            print(f"С БД {ser_user["last_enter"]}\nСервер: {datetime.now(timezone.utc)}")
+            logging.debug(f"С БД {ser_user["last_enter"]}\nСервер: {datetime.now(timezone.utc)}")
             time_gap = int((datetime.now(timezone.utc) - ser_user["last_enter"]).total_seconds())
             coins_left = ser_user["auto_miner"] - time_gap if ser_user["auto_miner"] - time_gap > 0 else 0
             if time_gap > 60:
@@ -109,4 +109,4 @@ async def disconnect(sid):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=80, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=80, log_level="debug")
