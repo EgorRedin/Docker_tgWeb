@@ -26,7 +26,7 @@ async def connection(sid, data):
         ser_user = user.__dict__
         if ser_user["auto_miner"] >= 0:
             logger.debug(f"С БД {ser_user["last_enter"]}\nСервер: {datetime.now(timezone.utc)}")
-            time_gap = int((datetime.now(timezone.utc) - ser_user["last_enter"]).total_seconds())
+            time_gap = int((datetime.now(timezone.utc).replace(tzinfo=None) - ser_user["last_enter"]).total_seconds())
             coins_left = ser_user["auto_miner"] - time_gap if ser_user["auto_miner"] - time_gap > 0 else 0
             if time_gap > 60:
                 await AsyncORM.update_auto_miner(user_id, coins_left)
