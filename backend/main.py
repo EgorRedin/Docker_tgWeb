@@ -8,6 +8,8 @@ import logging
 
 r = aioredis.Redis(host='redis', port=6379, decode_responses=True)
 app = FastAPI()
+logger = logging.getLogger("uvicorn.error")
+logger.setLevel(logging.DEBUG)
 sio = socketio.AsyncServer(cors_allowed_origins='*', async_mode='asgi')
 socket_app = socketio.ASGIApp(sio)
 app.mount("/", socket_app)
@@ -23,7 +25,7 @@ async def connection(sid, data):
         await r.hset(str(user_id), mapping={"balance": user.balance, "click_size": user.click_size})
         ser_user = user.__dict__
         if ser_user["auto_miner"] >= 0:
-            logging.debug(f"С БД {ser_user["last_enter"]}\nСервер: {datetime.now(timezone.utc)}")
+            logger.debug(f"С БД {ser_user["last_enter"]}\nСервер: {datetime.now(timezone.utc)}")
             time_gap = int((datetime.now(timezone.utc) - ser_user["last_enter"]).total_seconds())
             coins_left = ser_user["auto_miner"] - time_gap if ser_user["auto_miner"] - time_gap > 0 else 0
             if time_gap > 60:
