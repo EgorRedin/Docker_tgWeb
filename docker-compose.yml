@@ -13,10 +13,17 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.server
     networks:
       - mynetwork
 
+  bot:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.bot
+    networks:
+      - mynetwork
+      
   redis:
     image: redis:latest
     networks:
