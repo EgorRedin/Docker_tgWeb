@@ -6,6 +6,7 @@ from queries import AsyncORM
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import WebAppInfo
 
 router = Router()
 router.chat_member.filter(F.chat.id == -1002077559787)
