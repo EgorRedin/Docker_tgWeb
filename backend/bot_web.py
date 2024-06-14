@@ -4,6 +4,7 @@ from aiogram.filters.chat_member_updated import (
 )
 from queries import AsyncORM
 from aiogram.filters import CommandStart
+from aiogram.types import Message
 
 router = Router()
 router.chat_member.filter(F.chat.id == -1002077559787)
