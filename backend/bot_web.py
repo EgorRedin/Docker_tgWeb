@@ -23,14 +23,14 @@ async def user_joined(event: ChatMemberUpdated):
         await AsyncORM.update_earn_bonus(user_id)
 
 
-#@router.message(CommandStart())
-#async def start_cmd(msg: Message):
-#    start_kb = InlineKeyboardMarkup(inline_keyboard=
-#                                    [
-#                                        [
-#                                            InlineKeyboardButton(text="Перейти", web_app=WebAppInfo(
-#                                                url="https://668b-94-25-169-38.ngrok-free.app"))
-#                                        ]
-#                                    ])
-#    await msg.answer("Переход на сайт", reply_markup=start_kb)
+@router.message(CommandStart())
+async def start_cmd(msg: Message):
+    start_kb = InlineKeyboardMarkup(inline_keyboard=
+                                   [
+                                        [
+                                            InlineKeyboardButton(text="Перейти", web_app=WebAppInfo(
+                                                url="https://duo-coin.ru"))
+                                        ]
+                                    ])
+    await msg.answer("Переход на сайт", reply_markup=start_kb)
 
